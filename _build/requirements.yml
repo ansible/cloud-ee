@@ -1,0 +1,4 @@
+---
+collections:
+  - name: amazone.aws
+  - name: vmware.vmware_rest

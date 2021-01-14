@@ -1,0 +1,21 @@
+FROM quay.io/ansible/python-builder:latest as builder
+# =============================================================================
+
+ARG ZUUL_SIBLINGS=""
+COPY . /tmp/src
+RUN assemble
+
+FROM quay.io/ansible/cloud-ee:latest as cloud-ee-tests
+# =============================================================================
+
+COPY --from=builder /output/ /output/
+RUN /output/install-from-bindep \
+  && rm -rf /output/
+
+FROM cloud-ee-tests as cloud-ee-sanity-tests
+# =============================================================================
+CMD ["ansible-test", "sanity", "--python=3.8"]
+
+FROM cloud-ee-tests as cloud-ee-unit-tests
+# =============================================================================
+CMD ["ansible-test", "units", "--python=3.8"]
